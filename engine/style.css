@@ -13,7 +13,7 @@ h2{color:var(--blue);margin:0 0 6px}
 .q{position:relative}
 .q .num{font-weight:700;color:var(--blue);margin-right:6px}
 .q .pts{position:absolute;right:18px;top:16px;font-size:13px;color:#777}
-.q .prompt{font-weight:600;margin:0 34px 10px 0}
+.q .prompt{font-weight:600;margin:0 84px 10px 0}
 .q img.fig,.q svg.fig{max-width:100%;border-radius:8px;display:block;margin:8px 0}
 .hint{font-size:15px;color:#555;background:var(--blue-l);border-radius:8px;padding:6px 10px;margin:6px 0}
 .opts{display:flex;flex-direction:column;gap:8px}

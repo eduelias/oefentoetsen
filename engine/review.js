@@ -95,11 +95,13 @@ function renderQ(q, n) {
   if (!gr.manual) {
     gr.items.forEach((it, i) => {
       const label = it.label ?? (q.type === 'fill' || q.type === 'list' ? `${i + 1}` : '');
+      const txt = s => (q.type === 'mc' || q.type === 'match' ? { html: s } : {}); // options come from the test file and may hold markup; typed answers stay text
+      const kid = s => (q.type === 'mc' || q.type === 'match' ? null : s);
       card.append(h('div', { class: 'item ' + (it.ok ? 'res-ok' : 'res-no') },
         it.ok ? '✅ ' : '❌ ',
         label ? h('b', { html: label + ': ' }) : null,
-        h('span', {}, it.given || '(leeg)'),
-        !it.ok && it.expected && test.feedback !== 'none' ? h('span', { class: 'exp' }, `  →  goed is: `, h('b', {}, it.expected)) : null,
+        h('span', txt(it.given || '(leeg)'), kid(it.given || '(leeg)')),
+        !it.ok && it.expected && test.feedback !== 'none' ? h('span', { class: 'exp' }, `  →  goed is: `, h('b', txt(it.expected), kid(it.expected))) : null,
         it.note && !it.ok ? h('span', { class: 'note' }, `  (${it.note})`) : null));
     });
     if (!gr.items.length) card.append(h('div', {}, '(geen antwoord)'));

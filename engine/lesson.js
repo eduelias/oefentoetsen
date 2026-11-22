@@ -5,7 +5,8 @@
 //   <div class="try" id="x" data-answer="5400|5.400" data-num data-hint="…" data-fb='{"6300000":"…"}'>Vraag ___</div>
 //       ___ becomes an input; data-num compares as a number (grade.js), data-fb = feedback for specific wrong answers.
 //       Several ___ in one .try: data-answer is split per blank with ";" (each part may hold "|" alternatives).
-//   <div class="try pick" id="y" data-answer="1"><button>A</button><button>B</button>…</div>   (index of the right button)
+//   <div class="try pick" id="y" data-answer="1"><button data-fb="…">A</button><button>B</button>…</div>
+//       data-answer = index of the right button, counted from 0; a wrong button may carry its own feedback in data-fb.
 //   <div class="try tap" id="z" data-words="De taart is lekker." data-answer="2 3" data-fb='{"taart is":"…"}'>Tik het gezegde aan.</div>
 //       tap words like the test's "words" question; data-answer = word indices (space-separated, "|" alternatives),
 //       data-fb keys = the tapped words in sentence order, lowercase, without punctuation.
@@ -70,12 +71,12 @@ const Les = (() => {
     updateNav();
   }
   const praise = ['Goed zo! ✅', 'Precies! ✅', 'Top! ✅', 'Helemaal goed! ✅', 'Yes! ✅'];
-  function wrong(el, given) {
+  function wrong(el, given, own) {
     const n = (el._wrong = (el._wrong || 0) + 1);
     let fbMap = {};
     try { fbMap = JSON.parse(el.dataset.fb || '{}'); } catch (e) {}
     const key = Object.keys(fbMap).find(k => (el.dataset.num !== undefined ? checkNum(given, [k]).ok : k.toLowerCase() === String(given).replace(/[’‘`´]/g, "'").trim().toLowerCase()));
-    let msg = key ? fbMap[key] : 'Nog niet. Probeer het nog eens!';
+    let msg = own || (key ? fbMap[key] : 'Nog niet. Probeer het nog eens!');
     if (n >= 2 && el.dataset.hint) msg += `<br>💡 ${el.dataset.hint}`;
     if (n >= 3) {
       if (el.classList.contains('tap')) {
@@ -93,14 +94,16 @@ const Les = (() => {
     feedback(el, msg, false);
   }
 
+  // what a button says, readable in the log: a fraction button is "3/8", not "38"
+  const label = b => b.innerHTML.replace(/<span class="frac"><span>(\d+)<\/span><span>(\d+)<\/span><\/span>/g, '$1/$2').replace(/<[^>]+>/g, '').trim();
   function setupTry(el) {
     if (el.classList.contains('pick')) {
       $$('button', el).forEach((b, i) => b.addEventListener('click', () => {
         const ok = String(i) === el.dataset.answer;
-        record(el.id, b.textContent.trim(), ok);
+        record(el.id, label(b), ok);
         b.classList.add(ok ? 'right' : 'wrongpick');
         if (ok) { feedback(el, (el.dataset.ok || praise[Math.floor(Math.random() * praise.length)]), true); solve(el); }
-        else wrong(el, b.textContent.trim());
+        else wrong(el, label(b), b.dataset.fb);
       }));
       return;
     }
