@@ -1,0 +1,58 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Lessen"><meta name="theme-color" content="#0b5fa5"><link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Lessen</title><link rel="stylesheet" href="engine/style.css"></head><body>
+<header><h1>📚 Lessen</h1></header>
+<main>
+<div class="card"><h2>Hoi! 👋</h2><p class="lead">Kies een les. Pak je <b>kladblaadje</b> erbij!</p></div>
+<div class="lesgrid" id="grid"></div>
+<div class="card" id="sw" style="display:none;margin-top:18px"></div>
+<p style="text-align:center;margin-top:18px"><a href="index.html">🏠 Naar alle toetsen</a></p>
+</main>
+<script>
+const isSwitch = /Nintendo/i.test(navigator.userAgent);
+const isTouch = matchMedia('(pointer: coarse)').matches || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
+if (isSwitch || isTouch) document.body.classList.add('pad');
+const q = isSwitch ? '?pad=1' : '';
+(async () => {
+  const [lessons, status] = await Promise.all([
+    fetch('lessons/index.json').then(r => r.json()),
+    fetch('api/lessons').then(r => r.json()).catch(() => ({}))]);
+  document.getElementById('grid').innerHTML = lessons.map((l, i) => {
+    const s = status[l.id] || {};
+    const state = s.done ? '✅ Klaar' : s.tried ? `⏳ Bezig (${s.solved} ${s.solved === 1 ? 'opgave' : 'opgaven'} goed)` : '▶ Nog niet gedaan';
+    // "test" in index.json = the lesson unlocks that test when finished (same link as on the overview page)
+    const qs = [l.test ? 't=' + encodeURIComponent(l.test) : '', isSwitch ? 'pad=1' : ''].filter(Boolean).join('&');
+    return `<a class="lestile${s.done ? ' done' : ''}" href="lessons/${l.id}.html${qs ? '?' + qs : ''}">
+      <div class="em">${l.emoji}</div><h3>${i + 1}. ${l.title}</h3><div style="color:#666;font-size:15px">${l.goal}</div>
+      <div style="margin-top:6px;font-weight:700">${state}</div></a>`;
+  }).join('');
+  // Switch lesson mode: shown on the Switch itself (to finish) and for parents (to start)
+  const sw = await fetch('api/switch').then(r => r.json()).catch(() => null);
+  const box = document.getElementById('sw');
+  if (!sw) return;
+  box.style.display = '';
+  if (sw.on) {
+    box.innerHTML = `<h3>🎮 Switch-lesmodus staat aan (tot ${sw.until})</h3>
+      <p>Klaar met de lessen? Druk op de knop. Daarna kun je de Switch weer gewoon gebruiken.</p>
+      <button class="btn go big" id="off">Klaar, Switch weer normaal ✔</button>`;
+    document.getElementById('off').onclick = async () => {
+      await fetch('api/switch', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"minutes":0}' });
+      box.innerHTML = '<h3>✅ Klaar!</h3><p>Druk op de <b>B</b>-knop of op <b>+</b> om de browser te sluiten.</p>';
+    };
+  } else if (!isSwitch && !isTouch) {  // parents' panel only on a computer, not on the child's tablet
+    box.innerHTML = `<h3>🎮 Voor papa en mama: lessen op de Switch</h3>
+      <p>Zet de lesmodus aan. Op de Switch: <b>Systeeminstellingen → Internet → Verbinding testen</b>. De Switch opent dan deze pagina.
+      De lesmodus gaat na 2 uur vanzelf uit (of met de knop "Klaar" op de Switch).</p>
+      <button class="btn" id="on">Switch-lesmodus aan (2 uur)</button>`;
+    document.getElementById('on').onclick = async () => {
+      const post = () => fetch('api/switch', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Grade-Key': localStorage.getItem('nakijkcode') || '' }, body: '{"minutes":120}' });
+      let r = await post();
+      if (r.status === 403) {
+        const code = prompt('Nakijkcode (staat in grade.key op de server):'); if (!code) return;
+        localStorage.setItem('nakijkcode', code.trim()); r = await post();
+        if (r.status === 403) { localStorage.removeItem('nakijkcode'); alert('Die code klopt niet.'); return; }
+      }
+      location.reload();
+    };
+  }
+})();
+</script></body></html>

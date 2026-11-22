@@ -1,0 +1,140 @@
+{
+  "title": "Voorbeeld 2 – Alle vraagtypen",
+  "subject": "Overig · voorbeeld",
+  "group": 6,
+  "emoji": "🧪",
+  "intro": "Deze toets laat elk vraagtype één keer zien. Gebruik hem als voorbeeld voor je eigen toetsen.",
+  "sections": [
+    {
+      "title": "Kiezen",
+      "questions": [
+        {"id": "info", "type": "info", "html": "<p>ℹ️ Dit is een <b>info</b>-kaart: uitleg tussen de vragen door, zonder punten.</p>"},
+        {
+          "id": "mc",
+          "type": "mc",
+          "prompt": "Wat is de hoofdstad van Nederland?",
+          "options": ["Rotterdam", "Amsterdam", "Den Haag", "Utrecht"],
+          "answer": 1,
+          "explain": "De regering zit in Den Haag, maar Amsterdam is de hoofdstad."
+        },
+        {
+          "id": "tf",
+          "type": "tf",
+          "prompt": "Waar of niet waar?",
+          "statements": [
+            {"text": "Een week heeft 7 dagen.", "answer": true},
+            {"text": "Een kwartier is 25 minuten.", "answer": false},
+            {"text": "1 kilometer is 1000 meter.", "answer": true}
+          ]
+        },
+        {
+          "id": "match",
+          "type": "match",
+          "prompt": "Welk kommagetal hoort bij de breuk?",
+          "items": [{"left": "1/2", "answer": "0,5"}, {"left": "1/4", "answer": "0,25"}, {"left": "3/4", "answer": "0,75"}],
+          "options": ["0,2", "0,25", "0,5", "0,75"]
+        }
+      ]
+    },
+    {
+      "title": "Invullen",
+      "questions": [
+        {
+          "id": "fill-woord",
+          "type": "fill",
+          "prompt": "Vul in. Let op de hoofdletter bij een naam.",
+          "wordbank": ["Londen", "oosten", "Parijs", "westen"],
+          "lines": ["De hoofdstad van Frankrijk is ___.", "De zon komt op in het ___."],
+          "blanks": [{"answer": "Parijs"}, {"answer": "oosten", "case": false}]
+        },
+        {
+          "id": "fill-getal",
+          "type": "fill",
+          "num": true,
+          "prompt": "Reken uit.",
+          "lines": ["3,5 + 2,75 = ___", "1.250 + 750 = ___", "Een brood kost € 2,40. Twee broden kosten € ___"],
+          "blanks": [{"answer": "6,25"}, {"answer": "2000"}, {"answer": "4,80"}]
+        },
+        {
+          "id": "fill-breuk",
+          "type": "fill",
+          "frac": true,
+          "prompt": "Reken uit. Typ een breuk zo: 3/4.",
+          "lines": ["<span class=\"frac\"><span>1</span><span>2</span></span> + <span class=\"frac\"><span>1</span><span>4</span></span> = ___", "<span class=\"frac\"><span>2</span><span>3</span></span> + <span class=\"frac\"><span>2</span><span>3</span></span> = ___"],
+          "blanks": [{"answer": "3/4"}, {"answer": "4/3"}],
+          "explain": "Breuken tellen op waarde: 6/8 is ook goed, en 1 1/3 is hetzelfde als 4/3."
+        },
+        {
+          "id": "list",
+          "type": "list",
+          "prompt": "Noem drie provincies van Nederland.",
+          "count": 3,
+          "accepted": ["Groningen", ["Friesland", "Fryslân"], "Drenthe", "Overijssel", "Flevoland", "Gelderland", "Utrecht", "Noord-Holland", "Zuid-Holland", "Zeeland", "Noord-Brabant", "Limburg"]
+        }
+      ]
+    },
+    {
+      "title": "Taal",
+      "questions": [
+        {
+          "id": "words",
+          "type": "words",
+          "prompt": "Tik de persoonsvorm aan.",
+          "items": [
+            {"text": "De hond rent door de tuin.", "answer": [2]},
+            {"text": "Morgen gaan wij naar het strand.", "answer": [1]},
+            {"text": "Mijn zus heeft een nieuwe fiets.", "answer": [2]}
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Kaart",
+      "questions": [
+        {
+          "id": "map",
+          "type": "map",
+          "case": false,
+          "prompt": "Welke windrichting hoort bij elke letter?",
+          "image": "kompas.svg",
+          "items": [
+            {"label": "A", "answer": "noorden"},
+            {"label": "B", "answer": "oosten"},
+            {"label": "C", "answer": "zuiden"},
+            {"label": "D", "answer": "westen"}
+          ]
+        },
+        {
+          "id": "point",
+          "type": "point",
+          "prompt": "Tik de windrichting aan op het kompas.",
+          "image": "kompas.svg",
+          "size": [600, 600],
+          "dots": {"N": [300, 90], "NO": [445, 155], "O": [510, 300], "ZO": [445, 445], "Z": [300, 510], "ZW": [155, 445], "W": [90, 300], "NW": [155, 155]},
+          "items": [{"name": "het westen", "dot": "W"}, {"name": "het zuiden", "dot": "Z"}, {"name": "het noordoosten", "dot": "NO"}]
+        }
+      ]
+    },
+    {
+      "title": "Zelf uitleggen",
+      "questions": [
+        {
+          "id": "open",
+          "type": "open",
+          "points": 2,
+          "prompt": "Leg uit waarom je bij 2 − 0,15 eerst 2,00 schrijft.",
+          "model": "Dan staan er evenveel cijfers achter de komma. Daardoor kun je lenen en onder elkaar aftrekken.",
+          "rubric": ["1 punt: evenveel cijfers achter de komma / komma onder komma", "1 punt: het gevolg: daardoor kun je lenen of aftrekken"]
+        },
+        {
+          "id": "draw",
+          "type": "draw",
+          "points": 2,
+          "prompt": "Teken een rechthoek en kleur precies de helft.",
+          "model": "Een rechthoek met een lijn door het midden, één helft gekleurd.",
+          "rubric": ["1 punt: een rechthoek", "1 punt: de helft is gekleurd (twee gelijke delen)"]
+        }
+      ]
+    }
+  ]
+}

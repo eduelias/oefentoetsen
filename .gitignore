@@ -1,0 +1,5 @@
+results/
+grade.key
+__pycache__/
+.DS_Store
+.env

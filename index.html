@@ -1,0 +1,113 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Oefentoetsen</title><link rel="stylesheet" href="engine/style.css">
+<style>
+.sec-title{display:flex;align-items:center;gap:10px;margin:22px 0 10px}.sec-title h2{margin:0}
+.sec-title .count{background:var(--blue);color:#fff;border-radius:12px;padding:1px 10px;font-size:15px;font-weight:700}
+.subj{font-size:15px;font-weight:800;color:#555;text-transform:uppercase;letter-spacing:.5px;margin:14px 0 6px}
+.todo{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.tcard{background:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 2px 10px #0001;border-top:6px solid var(--c,#0b5fa5);display:flex;flex-direction:column;gap:8px}
+.tcard .top{display:flex;gap:10px;align-items:center}.tcard .emo{font-size:34px}
+.tcard .t{font-weight:800;font-size:18px;line-height:1.2}.tcard .s{font-size:13px;color:#666}
+.steps{display:flex;gap:6px;font-size:14px}.steps span{flex:1;text-align:center;border-radius:8px;padding:4px;background:#eef2f6;color:#666}
+.steps span.done{background:var(--ok-l);color:var(--ok);font-weight:700}.steps span.now{background:var(--warn-l);color:var(--warn);font-weight:700;outline:2px solid var(--sun)}
+.chip{align-self:flex-start;font-size:12px;font-weight:800;color:#fff;background:var(--c);border-radius:10px;padding:1px 9px;text-transform:uppercase;letter-spacing:.4px}
+.tcard .btn{text-align:center;text-decoration:none;margin-top:auto}
+.donegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.dcol{background:#fff;border-radius:14px;padding:12px 14px;box-shadow:0 2px 10px #0001;border-top:6px solid var(--c,#0b5fa5)}
+.dcol h3{margin:0 0 6px;font-size:17px}
+.drow{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #eef;text-decoration:none;color:inherit}
+.drow:last-child{border-bottom:0}.drow .n{flex:1;font-size:15px;line-height:1.25}.drow .d{font-size:12px;color:#888;display:block}
+.grade{min-width:46px;text-align:center;border-radius:10px;padding:3px 6px;font-weight:800;color:#fff;font-size:16px}
+.g-hi{background:var(--ok)}.g-mid{background:#e69138}.g-lo{background:var(--no)}.g-wait{background:#9aa;font-size:12px}
+details.more summary{cursor:pointer;color:var(--blue);font-size:14px;margin-top:6px}
+.empty{background:#fff;border-radius:14px;padding:16px;text-align:center;color:#555}
+.parent{margin-top:28px;font-size:14px;color:#666}.parent summary{cursor:pointer}
+.parent li{margin:3px 0}
+</style></head><body>
+<header><h1>📚 Oefentoetsen</h1></header>
+<main>
+  <div class="sec-title"><h2>🎯 Nu te doen</h2><span class="count" id="todo-count">…</span></div>
+  <div id="todo"></div>
+  <div class="sec-title"><h2>✅ Klaar</h2><span class="count" id="done-count">…</span></div>
+  <div id="done"></div>
+  <div id="old"></div>
+  <details class="parent"><summary>👪 Voor papa en mama (nakijken)</summary><ul id="parent"></ul></details>
+</main>
+<script>
+// Subjects in a fixed order; "Topografie" belongs to aardrijkskunde.
+const SUBJ = [
+  { key: 'Rekenen', icon: '🧮', c: '#0b5fa5' },
+  { key: 'Taal', icon: '✍️', c: '#8e44ad' },
+  { key: 'Aardrijkskunde', icon: '🌍', c: '#1b8a3a', alias: ['Topografie'] },
+  { key: 'Overig', icon: '📝', c: '#777' },
+];
+const subjOf = t => {
+  const s = (t.subject || '').split('·')[0].trim();
+  return SUBJ.find(x => x.key === s || (x.alias || []).includes(s)) || SUBJ[SUBJ.length - 1];
+};
+const detail = t => (t.subject || '').split('·').slice(1).join('·').trim();
+const byTitle = (a, b) => a.title.localeCompare(b.title, 'nl', { numeric: true });
+const gradeCls = g => (g >= 8 ? 'g-hi' : g >= 6 ? 'g-mid' : 'g-lo');
+const fmtG = g => Number(g).toFixed(1).replace('.', ',');
+// "Rekentoets 4 – Zonder hulp: …" → bold name + smaller subtitle
+const nameParts = t => { const [a, ...b] = t.title.split(' – '); return { name: a, sub: b.join(' – ') }; };
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+(async () => {
+  const [tests, results] = await Promise.all([fetch('api/tests').then(r => r.json()), fetch('api/results').then(r => r.json())]);
+  const lastResult = {}; // newest attempt per test (the api returns newest first)
+  results.forEach(r => { if (!lastResult[r.test]) lastResult[r.test] = r; });
+
+  const todo = tests.filter(t => !lastResult[t.id] && !t.archived).sort(byTitle);
+  // archived = put away (since 2026-11-22 also for finished tests): not in "Klaar", only in the folded archive
+  const done = tests.filter(t => lastResult[t.id] && !t.archived);
+  const oldDone = tests.filter(t => lastResult[t.id] && t.archived)
+    .sort((a, b) => (lastResult[b.id].submitted || '').localeCompare(lastResult[a.id].submitted || ''));
+  const old = tests.filter(t => !lastResult[t.id] && t.archived).sort(byTitle);
+
+  // --- to do: grouped per subject; each card shows the next step (lesson → test) ---
+  document.getElementById('todo-count').textContent = todo.length;
+  const todoEl = document.getElementById('todo');
+  if (!todo.length) todoEl.innerHTML = '<div class="empty">Alles af! 🎉 Er staat nu niets klaar.</div>';
+  const ordered = SUBJ.flatMap(s => todo.filter(t => subjOf(t) === s));
+  if (ordered.length) {
+    todoEl.insertAdjacentHTML('beforeend', `<div class="todo">${ordered.map(t => {
+      const s = subjOf(t), { name, sub } = nameParts(t);
+      const lesDone = !t.lesson || localStorage.getItem('les-done:' + t.id);
+      const busy = localStorage.getItem('oefentoets:' + t.id);
+      const steps = t.lesson
+        ? `<div class="steps"><span class="${lesDone ? 'done' : 'now'}">${lesDone ? '✅' : '1'} 📖 Les</span><span class="${lesDone ? 'now' : ''}">2 📝 Toets</span></div>` : '';
+      const btn = !lesDone
+        ? `<a class="btn" href="${esc(t.lesson)}?t=${encodeURIComponent(t.id)}">📖 Begin met de les</a>`
+        : `<a class="btn go" href="toets.html?t=${encodeURIComponent(t.id)}">${busy ? '▶ Verder gaan' : '▶ Start de toets'}</a>`;
+      return `<div class="tcard" style="--c:${s.c}"><span class="chip">${s.icon} ${s.key}</span><div class="top"><span class="emo">${t.emoji || s.icon}</span><div><div class="t">${esc(name)}</div><div class="s">${esc(sub || detail(t))}</div></div></div>${steps}${btn}</div>`;
+    }).join('')}</div>`);
+  }
+
+  // --- done: one column per subject, newest first, older ones folded away ---
+  document.getElementById('done-count').textContent = done.length;
+  const doneEl = document.getElementById('done');
+  const cols = SUBJ.map(s => {
+    const list = done.filter(t => subjOf(t) === s).map(t => ({ t, r: lastResult[t.id] }))
+      .sort((a, b) => (b.r.submitted || '').localeCompare(a.r.submitted || ''));
+    if (!list.length) return '';
+    const row = ({ t, r }) => `<a class="drow" href="resultaat.html?r=${encodeURIComponent(r.file)}"><span>${t.emoji || s.icon}</span>
+      <span class="n"><b>${esc(nameParts(t).name)}</b><span class="d">${esc(nameParts(t).sub)}${nameParts(t).sub ? ' · ' : ''}${esc((r.submitted || '').slice(0, 10))}</span></span>
+      ${r.cijfer != null ? `<span class="grade ${gradeCls(r.cijfer)}">${fmtG(r.cijfer)}</span>` : '<span class="grade g-wait">wordt nagekeken</span>'}</a>`;
+    const first = list.slice(0, 3).map(row).join(''), rest = list.slice(3);
+    return `<div class="dcol" style="--c:${s.c}"><h3>${s.icon} ${s.key}</h3>${first}${rest.length ? `<details class="more"><summary>Oudere toetsen (${rest.length})</summary>${rest.map(row).join('')}</details>` : ''}</div>`;
+  }).join('');
+  doneEl.innerHTML = cols ? `<div class="donegrid">${cols}</div>` : '<div class="empty">Nog niets klaar in deze ronde. Je oudere toetsen staan in het archief hieronder.</div>';
+
+  // --- archive: finished tests that were put away (with their grade) + never-made tests that are no longer needed ---
+  const arch = [
+    ...oldDone.map(t => { const r = lastResult[t.id];
+      return `<li><a href="resultaat.html?r=${encodeURIComponent(r.file)}">${esc(t.title)}</a> · ${esc((r.submitted || '').slice(0, 10))}${r.cijfer != null ? ` · <b>${fmtG(r.cijfer)}</b>` : ''}</li>`; }),
+    ...old.map(t => `<li><a href="toets.html?t=${encodeURIComponent(t.id)}">${esc(t.title)}</a> · niet gemaakt</li>`)];
+  if (arch.length) document.getElementById('old').innerHTML = `<details class="more parent"><summary>🗄️ Archief: oudere toetsen (${arch.length})</summary><ul>${arch.join('')}</ul></details>`;
+
+  // --- parent corner: grading links for every attempt ---
+  document.getElementById('parent').innerHTML = results.map(r => `<li>${esc(r.title)} · ${esc(r.submitted)} · ${r.points}/${r.max} ·
+    <a href="resultaat.html?r=${encodeURIComponent(r.file)}&edit=1">nakijken ✏️</a> ${r.manual_done ? '✅' : '⏳'}</li>`).join('') || '<li>Nog niets.</li>';
+})();
+</script></body></html>

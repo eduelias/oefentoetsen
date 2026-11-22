@@ -1,0 +1,85 @@
+{
+  "title": "Voorbeeld 1 – Kommagetallen optellen en aftrekken",
+  "subject": "Rekenen · voorbeeld",
+  "group": 7,
+  "emoji": "✏️",
+  "lesson": "lessons/voorbeeld-kommagetallen.html",
+  "intro": "Een voorbeeld van een les met een toets erachter: eerst de les, dan gaat de toets open.",
+  "tips": "💡 <b>Tips</b><ul><li>Pak je kladblaadje: reken onder elkaar.</li><li>Typ kommagetallen met een komma (2,5).</li></ul>",
+  "sections": [
+    {
+      "title": "Optellen",
+      "goal": "KOMMA-PLUS",
+      "questions": [
+        {
+          "id": "plus",
+          "type": "fill",
+          "num": true,
+          "prompt": "Reken onder elkaar uit. Komma onder komma!",
+          "lines": ["3,45 + 2,3 = ___", "6,78 + 1,56 = ___", "0,9 + 4,35 = ___", "12,5 + 7,75 = ___"],
+          "blanks": [{"answer": "5,75"}, {"answer": "8,34"}, {"answer": "5,25"}, {"answer": "20,25"}],
+          "explain": "Vul aan met nullen: 2,30 · 0,90 · 12,50."
+        },
+        {
+          "id": "evenlang",
+          "type": "mc",
+          "prompt": "Welk getal is even groot als 2,5?",
+          "options": ["2,05", "2,50", "25,0", "0,25"],
+          "answer": 1
+        }
+      ]
+    },
+    {
+      "title": "Aftrekken",
+      "goal": "KOMMA-MIN",
+      "questions": [
+        {
+          "id": "min",
+          "type": "fill",
+          "num": true,
+          "prompt": "Reken uit. Bij de laatste regel controleer je je eigen som.",
+          "lines": ["4 − 1,35 = ___", "10 − 6,08 = ___", "6,4 − 2,75 = ___", "Controle: 3,65 + 2,75 = ___"],
+          "blanks": [{"answer": "2,65"}, {"answer": "3,92"}, {"answer": "3,65"}, {"answer": "6,4"}],
+          "explain": "Schrijf 4 als 4,00 en 10 als 10,00. De controle is de plussom: daar moet het beginnetal uitkomen."
+        },
+        {
+          "id": "waar",
+          "type": "tf",
+          "prompt": "Waar of niet waar?",
+          "statements": [
+            {"text": "3,4 en 3,40 zijn even groot.", "answer": true},
+            {"text": "0,5 is groter dan 0,45.", "answer": true},
+            {"text": "Bij optellen zet je altijd de laatste cijfers onder elkaar.", "answer": false}
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Verhaaltjes",
+      "goal": "KOMMA-VERHAAL",
+      "questions": [
+        {
+          "id": "verhaal",
+          "type": "fill",
+          "num": true,
+          "prompt": "Reken uit.",
+          "lines": [
+            "Een boek kost € 12,95 en een schrift € 2,50. Samen € ___",
+            "Je betaalt met € 20. Het kost € 14,35. Je krijgt € ___ terug.",
+            "In een kan zit 1,5 liter. Je schenkt 0,35 liter uit. Er zit nog ___ liter in."
+          ],
+          "blanks": [{"answer": "15,45"}, {"answer": "5,65"}, {"answer": "1,15"}]
+        },
+        {
+          "id": "uitleg",
+          "type": "open",
+          "points": 2,
+          "prompt": "Sam rekent: 4,5 + 2,25 = 2,70. Wat doet Sam fout? En wat is het goede antwoord?",
+          "hint": "Schrijf twee dingen op: de fout én het goede antwoord.",
+          "model": "Sam zet de laatste cijfers onder elkaar in plaats van komma onder komma. Het goede antwoord is 6,75.",
+          "rubric": ["1 punt: noemt de fout (niet komma onder komma / 4,5 als 0,45 gerekend)", "1 punt: geeft het goede antwoord 6,75"]
+        }
+      ]
+    }
+  ]
+}
