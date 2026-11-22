@@ -82,7 +82,7 @@ Copy `lessons/voorbeeld-kommagetallen.html`. Each `<section class="slide">` is o
 - `data-fb` gives feedback for specific wrong answers. Its keys are matched literally (so `4/12` is not `2/6`), except with `data-num`, where they compare as numbers. In a `tap` exercise the key is the tapped words, lowercase, without punctuation.
 - `<div class="try pick" data-answer="1"><button data-fb="…">…</button><button>…</button></div>`: choose a button. `data-answer` is the index of the right button, counted from 0. Give a wrong button its own feedback with `data-fb` on the button.
 - `<div class="try tap" data-words="De soep is heet." data-answer="2 3">`: tap words, like the `words` question.
-- On touch screens `data-num` exercises get an on-screen keypad, so no keyboard covers the page. A `data-frac` exercise gets it only with `data-keys="/"`, which also adds that key.
+- On touch screens `data-num` exercises get an on-screen keypad, so no keyboard covers the page. A `data-frac` exercise gets it only with `data-keys="/"`, which also adds that key. A physical keyboard keeps working: its keys type into the selected box and Enter checks. `?pad=0` in the lesson's address switches the keypad off.
 - There are three kinds of exercise: typed, `pick` and `tap`. Practise a `match`, `tf` or `list` question as `pick` or typed; open questions have no lesson exercise.
 - Pictures: inline SVG in the lesson, or files beside it in `lessons/`. A test's pictures sit in its own folder.
 - Open a lesson as `lessons/<id>.html?t=<testId>` (the overview does this); without `?t=` the last slide links back to the overview instead of the test.

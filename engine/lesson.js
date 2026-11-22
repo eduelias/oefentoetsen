@@ -207,6 +207,17 @@ const Les = (() => {
     });
     btn.classList.add('check');
   }
+  // A physical keyboard keeps working in pad mode. A browser cannot tell whether one is attached, so the boxes stay
+  // read-only (no software keyboard opens) and real key presses go to the selected box, like taps on the keypad.
+  if (PAD) document.addEventListener('keydown', e => {
+    if (!active || e.ctrlKey || e.metaKey || e.altKey || e.target.matches?.('input:not([readonly]), textarea')) return;
+    if (e.key === 'Enter') { if (e.target.tagName !== 'INPUT') $('.check', active.closest('.try'))?.click(); return; } // a focused box has its own Enter handler
+    if (e.key === 'Backspace') active.value = active.value.slice(0, -1);
+    else if (e.key.length === 1) active.value += e.key;
+    else return;
+    active.classList.remove('bad');
+    e.preventDefault();
+  });
 
   function updateNav() {
     const s = slides[cur];
